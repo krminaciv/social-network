@@ -11,7 +11,9 @@ nije gotovo
    cd neophile
 
 2. Install the project dependencies:
+   ```shell
    npm install
    
-3. Start the development server:
+4. Start the development server:
+   ```shell
    npm start
