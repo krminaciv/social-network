@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import './css/login.css'
 import {auth} from '../config/firebase'
 import {signInWithEmailAndPassword} from 'firebase/auth'
 
@@ -19,10 +20,10 @@ export const Login = () => {
      };
 
      return(
-          <div>
+          <div className="login-form">
                <input placeholder="Email" type='email' onChange={(e) => setEmail(e.target.value)} />
                <input placeholder="Password" type="password" onChange={(e) => setPassword(e.target.value)} />
-               <button onClick={handleLogin}>Log In</button>
+               <button className="" onClick={handleLogin}>Log In</button>
           </div>
      )
 

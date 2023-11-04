@@ -1,17 +1,48 @@
 import { auth, db } from '../../config/firebase';
 import React, { useEffect, useState } from 'react';
-import { getDocs, collection, query, where } from 'firebase/firestore'
+import { getDocs, collection, query, where, addDoc, serverTimestamp } from 'firebase/firestore'
 import { Post } from '../../components/post'
-import { Footer } from '../../components/footer'
 import "./home.css"
 
 
 
 function Home() {
 
+
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+      if (authUser) {
+        // User is signed in
+        setUser(authUser);
+      } else {
+        // User is signed out
+        setUser(null);
+      }
+    });
+  })
+
+
+  const usersCollection = collection(db, "users");
+     const [username, setUsername] = useState(null);
+     const getUsername = async () => {
+          try {
+               const q = query(usersCollection, where("userID", '==', user?.uid));
+               const querySnapshot = await getDocs(q);
+               //const userDataArray = [];
+          if (!querySnapshot.empty) {
+               const userData = querySnapshot.docs[0].data();
+               setUsername(userData.username);
+          }
+          } catch(err){
+               console.log(err)
+          }
+     }
+  getUsername();
+
+
   const [posts, setPosts] = useState([]);
   const postsCollection = collection(db, "posts");
-  const usersCollection = collection(db, "users");
 
   useEffect(() => {
     const getPosts = async () => {
@@ -30,81 +61,41 @@ function Home() {
     getPosts();
   }, []);
 
-  const [user, setUser] = useState(null);
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((authUser) => {
-      if (authUser) {
-        // User is signed in
-        setUser(authUser);
-      } else {
-        // User is signed out
-        setUser(null);
-      }
-    });
-  })
 
-  /*
-  const [userData, setUserData] = useState(null);
-  //const [test, setTest] = useState("");
-
-  const getUsername = async () => {
-    try {
-      const q = query(usersCollection, where("userID", '==', user?.uid));
-      const querySnapshot = await getDocs(q);
-      const userDataArray = [];
-      querySnapshot.forEach((doc) => {
-        userDataArray.push({ id: doc.id, ...doc.data() });
-      });
-      setUserData(userDataArray);
-      
-      console.log("array je: " + userDataArray)
-      if(!querySnapshot.empty){
-        setTest(userDataArray[0].username)
-      }
-      console.log("test je: " + test)
-      
-    } catch(err) {
+  const [newPost, setNewPost] = useState("");
+  //postsCollection already exists
+  const createNewPost = async () => {
+    try{
+      await addDoc(postsCollection, {
+        text: newPost,
+        user: username,
+        created_at: serverTimestamp(),
+      })
+      window.location.href = "/";
+    }catch(err){
       console.error(err)
     }
   }
-  
-  useEffect(() => {
 
-    getUsername();
-  },[]);
-  */
-  //{user ? (<p>welcome, {user?.email}</p>) : (<p>not logged in</p>)}
-  /*
-  <div>
-      <h2>User Data:</h2>
-      {userData ? (
-        <ul>
-          {userData.map((user) => (
-            <li key={user.id}>{user.username}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>Loading user data...</p>
-      )}
-    </div>
-  */
+
+
+  
+    
   return (
     
     <div className="Home">
 
-      
-
       <br />
 
-      <div class="post-box">
-        <div class="user-avatar">
+      <div className="post-box">
+        <div className="user-avatar">
           <img src="/user-icon.png" alt="User Avatar" />
         </div>
-        <div class="post-input">
-          <textarea rows="5" placeholder="What's on your mind?"></textarea>
+        <div className="post-input">
+          <textarea className="textarea" onChange={(e) => setNewPost(e.target.value)} rows="5" placeholder="What's on your mind?"></textarea>
         </div>
-        <div class="post-actions">
-          <button class="post-button">Post</button>
+        <div className="post-actions">
+          <button className="post-button" onClick={createNewPost}>Post</button>
         </div>
       </div>
 
@@ -113,13 +104,12 @@ function Home() {
 
       <h2 className="timeline">Timeline</h2>
       <div className="content">
-        {posts.map((post) => (
+        {posts.slice().reverse().map((post) => (
           <Post post={post} />
         ))}
       </div>
 
       <br/><br/>
-      <Footer />
 
     </div>
   );

@@ -21,6 +21,7 @@ export const Auth = () => {
                //firebase firestore
                await addDoc(usersCollection, {
                     username: username,
+                    userID: auth?.currentUser?.uid
                }, {id: auth?.currentUser?.uid})
 
           } catch(err) {
@@ -30,7 +31,6 @@ export const Auth = () => {
      //console.log(auth?.currentUser?.uid)  
      console.log(auth?.currentUser?.email)  
 
-     
 
      return(
           <div className="auth-form">

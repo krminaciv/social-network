@@ -1,5 +1,5 @@
 .container {
-     width: 600px;
+     width: 700px;
      padding: 20px;
      margin: 15px;
      background-color: #242424;
@@ -17,6 +17,7 @@
 .user-info {
      display: flex;
      align-items: center;
+     cursor: pointer;
 }
 
 .created-at {
